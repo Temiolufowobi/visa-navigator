@@ -8,11 +8,7 @@
   ],
   "routes": [
     {
-      "src": "/analyze",
-      "dest": "server.js"
-    },
-    {
-      "src": "/",
+      "src": "/(.*)",
       "dest": "server.js"
     }
   ]
