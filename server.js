@@ -2,16 +2,23 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use(express.static(path.join(__dirname, 'public')));
-
 app.get('/', (req, res) => {
-res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  const filePath = path.join(__dirname, 'public', 'index.html');
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      res.status(500).send('Error loading page: ' + err.message + ' | Path: ' + filePath);
+    } else {
+      res.send(data);
+    }
+  });
 });
+
 app.post('/analyze', async (req, res) => {
   const { status, goal, situation, country } = req.body;
 
