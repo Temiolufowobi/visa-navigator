@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>US Visa Pathway Navigator</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, sans-serif; background: #f5f5f5; min-height: 100vh; padding: 2rem 1rem; }
+    .container { max-width: 680px; margin: 0 auto; background: white; border-radius: 16px; padding: 2rem; box-shadow: 0 2px 20px rgba(0,0,0,0.08); }
+    h1 { font-size: 22px; font-weight: 600; color: #111; }
+    .subtitle { font-size: 14px; color: #666; margin-top: 6px; margin-bottom: 1.5rem; line-height: 1.5; }
+    .step-label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+    h2 { font-size: 16px; font-weight: 500; color: #111; margin-bottom: 4px; }
+    p { font-size: 14px; color: #666; line-height: 1.6; margin-top: 4px; }
+    .chip-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .chip { padding: 7px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; color: #333; background: #fafafa; cursor: pointer; transition: all 0.15s; }
+    .chip:hover { border-color: #6366f1; color: #6366f1; background: #eef2ff; }
+    .chip.selected { border-color: #6366f1; color: #6366f1; background: #eef2ff; font-weight: 500; }
+    textarea { width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid #ddd; border-radius: 8px; background: #fafafa; font-family: inherit; min-height: 90px; resize: vertical; margin-top: 12px; line-height: 1.6; }
+    .btn-row { display: flex; justify-content: flex-end; margin-top: 10px; }
+    .btn { padding: 9px 20px; font-size: 14px; border: none; border-radius: 8px; background: #6366f1; color: white; cursor: pointer; font-family: inherit; font-weight: 500; }
+    .btn:hover { background: #4f46e5; }
+    .hidden { display: none; }
+    .card { background: #fafafa; border: 1px solid #eee; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; }
+    .progress-bar { height: 3px; background: #eee; border-radius: 2px; margin-bottom: 1.5rem; }
+    .progress-fill { height: 100%; background: #6366f1; border-radius: 2px; transition: width 0.4s; }
+    .pathway-card { background: white; border: 1px solid #eee; border-radius: 12px; padding: 1.25rem; margin-bottom: 10px; }
+    .pathway-name { font-size: 15px; font-weight: 600; color: #111; }
+    .pathway-code { font-size: 12px; color: #999; margin-top: 2px; }
+    .match-badge { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+    .strong { background: #dcfce7; color: #16a34a; }
+    .possible { background: #fef9c3; color: #ca8a04; }
+    .limited { background: #fee2e2; color: #dc2626; }
+    .pathway-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .section-label { font-size: 11px; font-weight: 500; color: #999; text-transform: uppercase; letter-spacing: 0.05em; margin: 10px 0 4px; }
+    .body-text { font-size: 13px; color: #555; line-height: 1.65; }
+    .req-list { list-style: none; padding: 0; }
+    .req-list li { font-size: 13px; color: #555; padding: 2px 0 2px 14px; position: relative; }
+    .req-list li::before { content: '·'; position: absolute; left: 3px; color: #999; }
+    .source-link { font-size: 12px; color: #6366f1; text-decoration: none; display: inline-block; margin-top: 8px; }
+    .disclaimer { font-size: 12px; color: #92400e; line-height: 1.6; padding: 10px 14px; background: #fffbeb; border-radius: 8px; border: 1px solid #fde68a; margin-bottom: 1rem; }
+    .important-note { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #4338ca; margin-top: 8px; line-height: 1.6; }
+    .next-card { background: #fafafa; border: 1px solid #eee; border-radius: 12px; padding: 1.25rem; margin-top: 1rem; }
+    .next-card h3 { font-size: 14px; font-weight: 600; color: #111; margin-bottom: 10px; }
+    .step-item { display: flex; gap: 10px; align-items: flex-start; padding: 5px 0; }
+    .step-num { width: 22px; height: 22px; border-radius: 50%; background: #eef2ff; color: #6366f1; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .step-text { font-size: 13px; color: #555; line-height: 1.5; }
+    .resource-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .resource-btn { padding: 6px 12px; font-size: 12px; border: 1px solid #ddd; border-radius: 8px; background: white; color: #6366f1; text-decoration: none; }
+    .restart-btn { background: none; border: none; font-size: 13px; color: #999; cursor: pointer; text-decoration: underline; display: block; margin: 1rem auto 0; font-family: inherit; }
+    .loading { text-align: center; padding: 2rem; }
+    .spinner { width: 28px; height: 28px; border: 2px solid #eee; border-top-color: #6366f1; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error { background: #fee2e2; border: 1px solid #fca5a5; border-radius: 8px; padding: 1rem; text-align: center; color: #dc2626; font-size: 14px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>US Visa Pathway Navigator</h1>
+  <p class="subtitle">Answer four questions to see which visa pathways fit your situation, ranked by likelihood of success.</p>
+  <div class="progress-bar"><div class="progress-fill" id="prog" style="width:0%"></div></div>
+
+  <div id="s1" class="card">
+    <div class="step-label">Step 1 of 4</div>
+    <h2>What is your current immigration status?</h2>
+    <div class="chip-grid" id="c1">
+      <div class="chip" data-val="No status / undocumented">No status / undocumented</div>
+      <div class="chip" data-val="Tourist / visitor visa (B-1/B-2)">Tourist / visitor visa (B-1/B-2)</div>
+      <div class="chip" data-val="Student visa (F-1 or M-1)">Student visa (F-1 or M-1)</div>
+      <div class="chip" data-val="Work visa (H-1B, L-1, O-1 etc.)">Work visa (H-1B, L-1, O-1 etc.)</div>
+      <div class="chip" data-val="Asylum seeker / pending asylum">Asylum seeker / pending asylum</div>
+      <div class="chip" data-val="Green Card holder">Green Card holder</div>
+      <div class="chip" data-val="Outside the US">Outside the US</div>
+      <div class="chip" data-val="Other / not sure">Other / not sure</div>
+    </div>
+  </div>
+
+  <div id="s2" class="card hidden">
+    <div class="step-label">Step 2 of 4</div>
+    <h2>What is your main goal?</h2>
+    <div class="chip-grid" id="c2">
+      <div class="chip" data-val="Work legally in the US">Work legally in the US</div>
+      <div class="chip" data-val="Get a Green Card">Get a Green Card</div>
+      <div class="chip" data-val="Study in the US">Study in the US</div>
+      <div class="chip" data-val="Stay with or join family">Stay with or join family</div>
+      <div class="chip" data-val="Seek protection or asylum">Seek protection or asylum</div>
+      <div class="chip" data-val="Start or invest in a business">Start or invest in a business</div>
+      <div class="chip" data-val="Become a US citizen">Become a US citizen</div>
+      <div class="chip" data-val="Not sure yet">Not sure yet</div>
+    </div>
+  </div>
+
+  <div id="s3" class="card hidden">
+    <div class="step-label">Step 3 of 4</div>
+    <h2>Tell us about your situation</h2>
+    <p>Include your country of origin, time in the US, education, work experience, family ties to US citizens or residents.</p>
+    <textarea id="sit" placeholder="e.g. I'm from Brazil, in the US for 2 years on an expired tourist visa. I have a US citizen husband and one child..."></textarea>
+    <div class="btn-row"><button class="btn" id="s3btn">Continue →</button></div>
+  </div>
+
+  <div id="s4" class="card hidden">
+    <div class="step-label">Step 4 of 4</div>
+    <h2>What is your country of birth?</h2>
+    <p>This affects wait times due to per-country visa caps.</p>
+    <div class="chip-grid" id="c4">
+      <div class="chip" data-val="India">India</div>
+      <div class="chip" data-val="China">China</div>
+      <div class="chip" data-val="Mexico">Mexico</div>
+      <div class="chip" data-val="Philippines">Philippines</div>
+      <div class="chip" data-val="El Salvador, Honduras, or Guatemala">El Salvador, Honduras, or Guatemala</div>
+      <div class="chip" data-val="Other Latin American country">Other Latin American country</div>
+      <div class="chip" data-val="European country">European country</div>
+      <div class="chip" data-val="African country">African country</div>
+      <div class="chip" data-val="Other / prefer not to say">Other / prefer not to say</div>
+    </div>
+  </div>
+
+  <div id="loading" class="loading hidden">
+    <div class="spinner"></div>
+    <p>Analyzing your situation against USCIS visa categories...</p>
+  </div>
+
+  <div id="results" class="hidden">
+    <div class="disclaimer">⚠️ General information only — not legal advice. Always consult a qualified immigration attorney before taking action.</div>
+    <div id="pathways"></div>
+    <div class="next-card">
+      <h3>Suggested next steps</h3>
+      <div id="nextsteps"></div>
+      <div class="resource-row">
+        <a class="resource-btn" href="https://www.uscis.gov" target="_blank">USCIS.gov</a>
+        <a class="resource-btn" href="https://www.immigrationadvocates.org/legaldirectory/" target="_blank">Free legal help</a>
+        <a class="resource-btn" href="https://cliniclegal.org/find-an-agency" target="_blank">CLINIC network</a>
+      </div>
+    </div>
+    <button class="restart-btn" id="restart">Start over</button>
+  </div>
+</div>
+
+<script>
+  let st='', gl='', sit='', cn='';
+  const prog = n => document.getElementById('prog').style.width = n+'%';
+
+  function show(id) {
+    ['s1','s2','s3','s4','loading','results'].forEach(x => document.getElementById(x).classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+  }
+
+  document.getElementById('c1').addEventListener('click', e => {
+    const c = e.target.closest('.chip'); if(!c) return;
+    document.querySelectorAll('#c1 .chip').forEach(x=>x.classList.remove('selected'));
+    c.classList.add('selected'); st = c.dataset.val;
+    setTimeout(()=>{show('s2');prog(25);},300);
+  });
+
+  document.getElementById('c2').addEventListener('click', e => {
+    const c = e.target.closest('.chip'); if(!c) return;
+    document.querySelectorAll('#c2 .chip').forEach(x=>x.classList.remove('selected'));
+    c.classList.add('selected'); gl = c.dataset.val;
+    setTimeout(()=>{show('s3');prog(50);},300);
+  });
+
+  document.getElementById('s3btn').addEventListener('click', () => {
+    sit = document.getElementById('sit').value.trim();
+    if(!sit){document.getElementById('sit').focus();return;}
+    show('s4'); prog(75);
+  });
+
+  document.getElementById('c4').addEventListener('click', e => {
+    const c = e.target.closest('.chip'); if(!c) return;
+    document.querySelectorAll('#c4 .chip').forEach(x=>x.classList.remove('selected'));
+    c.classList.add('selected'); cn = c.dataset.val;
+    setTimeout(()=>{show('loading');prog(100);runAnalysis();},300);
+  });
+
+  document.getElementById('restart').addEventListener('click', () => {
+    st='';gl='';sit='';cn='';
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
+    document.getElementById('sit').value='';
+    show('s1'); prog(0);
+  });
+
+  async function runAnalysis() {
+    try {
+      const res = await fetch('/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: st, goal: gl, situation: sit, country: cn })
+      });
+      const data = await res.json();
+      renderResults(data);
+      show('results');
+    } catch(e) {
+      document.getElementById('loading').innerHTML = '<div class="error">Something went wrong. Please try again.</div>';
+    }
+  }
+
+  function renderResults(data) {
+    document.getElementById('pathways').innerHTML = data.pathways.map(p => {
+      const bc = p.match==='Strong match'?'strong':p.match==='Possible match'?'possible':'limited';
+      return `<div class="pathway-card">
+        <div class="pathway-header">
+          <div><div class="pathway-name">${p.name}</div><div class="pathway-code">${p.code}</div></div>
+          <div class="match-badge ${bc}">${p.match}</div>
+        </div>
+        <p class="body-text">${p.why_it_fits}</p>
+        <div class="section-label">Key requirements</div>
+        <ul class="req-list">${p.key_requirements.map(r=>`<li>${r}</li>`).join('')}</ul>
+        <div class="section-label">Main barrier for you</div>
+        <p class="body-text" style="color:#d97706;">${p.main_barrier}</p>
+        <a class="source-link" href="${p.uscis_url}" target="_blank">View on USCIS.gov →</a>
+      </div>`;
+    }).join('') + (data.important_note ? `<div class="important-note"><strong>Important:</strong> ${data.important_note}</div>` : '');
+
+    document.getElementById('nextsteps').innerHTML = data.next_steps.map((s,i)=>`
+      <div class="step-item">
+        <div class="step-num">${i+1}</div>
+        <div class="step-text">${s}</div>
+      </div>`).join('');
+  }
+</script>
+</body>
+</html>
