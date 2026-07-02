@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  const filePath = path.join(__dirname, 'public', 'index.html');
+  const filePath = path.join(__dirname, 'index.html');
   fs.readFile(filePath, 'utf8', (err, data) => {
     if (err) {
       res.status(500).send('Error loading page: ' + err.message + ' | Path: ' + filePath);
